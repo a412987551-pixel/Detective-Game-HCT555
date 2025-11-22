@@ -27,7 +27,10 @@ const App: React.FC = () => {
   const [locationName, setLocationName] = useState<string>("");
 
   // State to hold the latest AI response for use in BGM useEffect
-  const [gameResponse, setGameResponse] = useState<GameResponse | null>(null); 
+  const [gameResponse, setGameResponse] = useState<GameResponse | null>(null);
+    
+  // *** 修正點 1: 新增 finalStatus 狀態，用於明確記錄遊戲結局 ***
+  const [finalStatus, setFinalStatus] = useState<'won' | 'lost' | null>(null); 
 
   const [isLoading, setIsLoading] = useState(false);
   const hasInitialized = useRef(false);
@@ -37,7 +40,7 @@ const App: React.FC = () => {
   // Ref to track the currently playing file name
   const currentBGM = useRef<string | null>(null); 
 
-  // FIXED: Music playback logic (只在歌曲變換時才播放，但會嘗試恢復暫停狀態)
+  // FIXED: Music playback logic
   useEffect(() => {
     const desiredBGM = gameResponse?.bgm_filename;
     const gameStatus = gameResponse?.game_status;
@@ -92,7 +95,9 @@ const App: React.FC = () => {
     setSuggestions([]);
     setCharacters([]);
     setEvidence([]);
-    setGameResponse(null); 
+    setGameResponse(null);
+    // 重設結局狀態
+    setFinalStatus(null);
     
     try {
       const response = await initializeGame();
@@ -119,13 +124,12 @@ const App: React.FC = () => {
 
   const handleGameResponse = (response: GameResponse) => {
     
-    // START: CRITICAL FIX - 檢查是否是結局，並使用 resolution 欄位作為最終敘事
+    // START: 確保 resolution 故事被提取
     let finalNarrative = response.narrative;
     if (response.game_status === 'won' || response.game_status === 'lost') {
-        // 如果遊戲結束，使用 resolution 欄位作為最終的、完整的結局故事
         finalNarrative = response.resolution || response.narrative;
     }
-    // END: CRITICAL FIX
+    // END: 確保 resolution 故事被提取
 
     // Add Bot Message (使用 finalNarrative)
     const botMsg: Message = {
@@ -142,9 +146,12 @@ const App: React.FC = () => {
     setEvidence(response.evidence || []);
     setLocationName(response.location_name || "Unknown");
     
+    // *** 修正點 2: 使用明確的 game_status 設置最終狀態 ***
     if (response.game_status === 'won') {
+      setFinalStatus('won'); // 精確記錄贏了
       setGameState(GameState.GAME_OVER);
     } else if (response.game_status === 'lost' || response.turns_left <= 0) {
+      setFinalStatus('lost'); // 精確記錄輸了
       setGameState(GameState.GAME_OVER);
     }
   };
@@ -180,11 +187,15 @@ const App: React.FC = () => {
   const handleRestart = () => {
       setGameState(GameState.IDLE);
       hasInitialized.current = false;
+      setFinalStatus(null); // 重設結局狀態
       startGame();
   };
 
   // 取得最後的敘事內容 (現在會是完整的 resolution 故事)
   const lastNarrative = messages[messages.length - 1]?.text || "結局故事遺失。";
+  
+  // *** 修正點 3: 確保 modal 使用 finalStatus，並只有在 finalStatus 存在時才渲染 ***
+  const modalStatus = finalStatus || 'lost';
 
   return (
     // 最外層容器：確保背景透明
@@ -225,11 +236,12 @@ const App: React.FC = () => {
         />
       </div>
 
-      {gameState === GameState.GAME_OVER && (
+      {/* *** 修正點 4: 只有當 finalStatus 設置後才顯示 Modal *** */}
+      {gameState === GameState.GAME_OVER && finalStatus && (
         <GameOverModal 
           // 傳遞完整的 resolution 故事給 modal
           lastNarrative={lastNarrative}
-          status={turnsLeft > 0 && messages[messages.length-1]?.text.includes("won") ? 'won' : (turnsLeft <= 0 ? 'lost' : (messages[messages.length-1]?.text.includes("lost") ? 'lost' : 'won'))} 
+          status={modalStatus} // 使用精確記錄的狀態
           onRestart={handleRestart} 
         />
       )}
