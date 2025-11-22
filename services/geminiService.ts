@@ -3,7 +3,7 @@ import { GameResponse } from "../types";
 
 // ↓↓↓↓↓ 關鍵修復區塊：請在此處直接寫入您的 API 金鑰，繞過 Vercel 環境變數問題 ↓↓↓↓↓
 // 請將 YOUR_REAL_API_KEY 替換成您的真實金鑰！
-const API_KEY = "YOUR_REAL_API_KEY"; // <<<<<<< 請替換此處！
+const API_KEY = "AIzaSyCnntR6EEtleHW_pscZaf4qkfZKCxu3dhU"; // <<<<<<< 請替換此處！
 
 if (!API_KEY || API_KEY === "YOUR_REAL_API_KEY") {
 	console.error("API_KEY is missing or the placeholder is still present. Please insert your key directly into the geminiService.ts file.");
