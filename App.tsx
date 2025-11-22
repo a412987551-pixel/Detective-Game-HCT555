@@ -11,9 +11,12 @@ import GameOverModal from './components/GameOverModal';
 // 定義 EvidenceSidebarProps 以便我們可以將 className 傳遞給它
 interface EvidenceSidebarProps {
   evidence: Evidence[];
-  // 讓 EvidenceSidebar 接受 className 屬性
   className?: string; 
 }
+
+// 設定結局彈窗延遲時間 (毫秒)
+// *** 已從 2500 毫秒調整為 60000 毫秒 (60 秒) ***
+const ENDGAME_DELAY_MS = 60000; 
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -29,7 +32,7 @@ const App: React.FC = () => {
   // State to hold the latest AI response for use in BGM useEffect
   const [gameResponse, setGameResponse] = useState<GameResponse | null>(null);
     
-  // *** 修正點 1: 新增 finalStatus 狀態，用於明確記錄遊戲結局 ***
+  // State to explicitly track the game resolution status (won or lost)
   const [finalStatus, setFinalStatus] = useState<'won' | 'lost' | null>(null); 
 
   const [isLoading, setIsLoading] = useState(false);
@@ -146,13 +149,19 @@ const App: React.FC = () => {
     setEvidence(response.evidence || []);
     setLocationName(response.location_name || "Unknown");
     
-    // *** 修正點 2: 使用明確的 game_status 設置最終狀態 ***
+    // 關鍵修復點：如果遊戲結束，設定 finalStatus，但延遲彈出 modal (60秒)
     if (response.game_status === 'won') {
       setFinalStatus('won'); // 精確記錄贏了
-      setGameState(GameState.GAME_OVER);
+      // 延遲設定 GAME_OVER 狀態，給予玩家閱讀時間 (60秒)
+      setTimeout(() => {
+        setGameState(GameState.GAME_OVER);
+      }, ENDGAME_DELAY_MS); 
     } else if (response.game_status === 'lost' || response.turns_left <= 0) {
       setFinalStatus('lost'); // 精確記錄輸了
-      setGameState(GameState.GAME_OVER);
+      // 延遲設定 GAME_OVER 狀態 (60秒)
+      setTimeout(() => {
+        setGameState(GameState.GAME_OVER);
+      }, ENDGAME_DELAY_MS); 
     }
   };
 
@@ -194,7 +203,7 @@ const App: React.FC = () => {
   // 取得最後的敘事內容 (現在會是完整的 resolution 故事)
   const lastNarrative = messages[messages.length - 1]?.text || "結局故事遺失。";
   
-  // *** 修正點 3: 確保 modal 使用 finalStatus，並只有在 finalStatus 存在時才渲染 ***
+  // 確保 modal 使用 finalStatus，並只有在 finalStatus 存在時才渲染
   const modalStatus = finalStatus || 'lost';
 
   return (
@@ -236,7 +245,7 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* *** 修正點 4: 只有當 finalStatus 設置後才顯示 Modal *** */}
+      {/* Modal: 只有當 finalStatus 設置後且 gameState 為 GAME_OVER 時才顯示 */}
       {gameState === GameState.GAME_OVER && finalStatus && (
         <GameOverModal 
           // 傳遞完整的 resolution 故事給 modal
