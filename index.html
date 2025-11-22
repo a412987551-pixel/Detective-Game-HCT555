@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>滬江高中：餐飲三勤命案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&family=Cinzel:wght@700&display=swap');
+      
+      body {
+        background-color: #050505;
+        color: #e2e8f0;
+        font-family: 'Noto Sans TC', sans-serif;
+        /* 恐怖教室/黑板背景圖 (使用接近氛圍的圖庫照) */
+        background-image: url('https://images.unsplash.com/photo-1626264130336-bb9f5f2fa662?q=80&w=2070&auto=format&fit=crop'); 
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        overflow: hidden;
+      }
+
+      /* 強烈的血色暗角濾鏡 */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(20,0,0,0.3) 0%, rgba(40,0,0,0.6) 60%, rgba(0,0,0,0.95) 100%);
+        box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        z-index: -2;
+        pointer-events: none;
+      }
+
+      /* 血跡氛圍疊加 (紅色暈染) */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(100,0,0,0.1) 0%, rgba(20,0,0,0.3) 100%);
+        z-index: -1;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+      }
+
+      .font-title {
+        font-family: 'Noto Sans TC', sans-serif;
+      }
+      
+      .font-body {
+        font-family: 'Noto Sans TC', sans-serif;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.3); 
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(139, 0, 0, 0.3); 
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(185, 28, 28, 0.6); 
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
